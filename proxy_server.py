@@ -2,10 +2,6 @@
 # Contributor: Intissar
 # Role: Core proxy server, request parsing integration, HTTP forwarding foundation
 
-# NetShield Proxy
-# Contributor: Intissar (Tesh role)
-# Role: Core proxy server, request parsing integration, HTTP forwarding foundation
-
 import socket
 from core.request_parser import parse_http_request
 
