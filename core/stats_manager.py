@@ -1,6 +1,8 @@
-import threading
+# Contributor: Laura
+# File: core/stats_manager.py
+# Purpose: Track proxy statistics safely across requests.
 
-# Laura - Stats Manager
+import threading
 
 lock = threading.Lock()
 
@@ -12,10 +14,12 @@ stats = {
     "cache_misses": 0
 }
 
+
 def increment(key):
     with lock:
         if key in stats:
             stats[key] += 1
+
 
 def get_stats():
     with lock:

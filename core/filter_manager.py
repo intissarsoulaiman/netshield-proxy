@@ -1,39 +1,46 @@
+# Contributor: Laura
+# File: core/filter_manager.py
+# Purpose: Manage blacklist/whitelist filtering and blocked HTTP response.
+
 import socket
 
-# Laura - Filter Manager
 
 def load_file(path):
     try:
         with open(path, "r") as f:
             return [line.strip().lower() for line in f if line.strip()]
-    except:
+    except Exception:
         return []
+
 
 def resolve_ip(domain):
     try:
         return socket.gethostbyname(domain)
-    except:
+    except Exception:
         return None
+
 
 def reload_lists():
     global blacklist, whitelist
     blacklist = load_file("data/blacklist.txt")
     whitelist = load_file("data/whitelist.txt")
 
-# initial load
+
+# Initial load
 blacklist = load_file("data/blacklist.txt")
 whitelist = load_file("data/whitelist.txt")
+
 
 def is_blocked(host):
     host = host.lower()
 
-    # whitelist mode (if not empty)
+    # whitelist mode (if whitelist is not empty)
     if whitelist:
         allowed = any(site in host for site in whitelist)
         if not allowed:
             return True
 
-    # blacklist check
+    # blacklist domain check
     if any(site in host for site in blacklist):
         return True
 
@@ -43,8 +50,7 @@ def is_blocked(host):
         return True
 
     return False
-    
-    # Laura - Custom Blocked Response
+
 
 def build_blocked_response(host):
     body = f"""
