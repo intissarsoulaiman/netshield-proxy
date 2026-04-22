@@ -1,27 +1,29 @@
 import time
+import threading
 
-# simple in-memory cache
+# Laura - Cache Manager
+
 cache = {}
+lock = threading.Lock()
 
-# optional TTL (simple version)
 CACHE_TTL = 60  # seconds
 
 def get_cache(key):
-    if key in cache:
-        value, timestamp = cache[key]
+    with lock:
+        if key in cache:
+            value, timestamp = cache[key]
 
-        # check expiry
-        if time.time() - timestamp < CACHE_TTL:
-            return value
-        else:
-            del cache[key]  # expired
+            if time.time() - timestamp < CACHE_TTL:
+                return value
+            else:
+                del cache[key]
 
     return None
 
-
 def set_cache(key, value):
-    cache[key] = (value, time.time())
-
+    with lock:
+        cache[key] = (value, time.time())
 
 def clear_cache():
-    cache.clear()
+    with lock:
+        cache.clear()
