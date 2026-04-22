@@ -1,6 +1,6 @@
 # NetShield Proxy
 # Contributor: Intissar
-# Role: Socket server, client handling, request receiving, forwarding integration
+# Role: Socket server, client handling, request receiving, forwarding integration.
 
 import socket
 from core.request_parser import parse_http_request
