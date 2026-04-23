@@ -26,3 +26,6 @@
 2026-04-23 16:53:08.242477 | 127.0.0.1:62369 | GET http://nonexistent12345.com/ | nonexistent12345.com:80 | 2026-04-23 16:53:08.242482 | ERROR: [Errno 11001] getaddrinfo failed
 2026-04-23 19:35:57.008984 | 127.0.0.1:54397 | GET http://google.com/ | google.com:80 | 2026-04-23 19:35:57.008994 | ERROR: 
 2026-04-23 19:38:30.362081 | 127.0.0.1:59864 | GET http://example.com/ | example.com:80 | 2026-04-23 19:38:30.362096 | ERROR: BLOCKED
+2026-04-23 23:23:28.976098 | 127.0.0.1:58764 | GET http://example.com/ | example.com:80 | 2026-04-23 23:23:28.976140 | ERROR: 
+2026-04-23 23:23:38.586129 | 127.0.0.1:58768 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-23 23:23:38.586133 | ERROR: 
+2026-04-23 23:23:49.673335 | 127.0.0.1:58771 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-23 23:23:49.673339 | ERROR: 
