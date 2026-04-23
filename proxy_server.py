@@ -7,11 +7,15 @@ import threading
 from core.request_parser import parse_http_request
 from core.http_handler import forward_http_request
 from core.filter_manager import is_blocked, build_blocked_response
-from core import logger_manager, filter_manager
+from core import logger_manager, filter_manager, stats_manager
 
 HOST = "127.0.0.1"
 PORT = 8080
 BUFFER_SIZE = 4096
+
+# Intissar - local active connection tracking for Day 3
+active_connections = 0
+active_connections_lock = threading.Lock()
 
 
 def build_error_response(message):
@@ -37,10 +41,28 @@ def build_error_response(message):
     return response.encode()
 
 
+def increment_active_connections():
+    global active_connections
+    with active_connections_lock:
+        active_connections += 1
+        print(f"Active connections: {active_connections}")
+
+
+def decrement_active_connections():
+    global active_connections
+    with active_connections_lock:
+        active_connections -= 1
+        print(f"Active connections: {active_connections}")
+
+
 def handle_client(client_socket, client_address):
     client_ip, client_port = client_address
+    increment_active_connections()
 
     print(f"Client connected: {client_address}")
+
+    # Intissar + Laura integration
+    stats_manager.increment("total_requests")
 
     try:
         request_bytes = client_socket.recv(BUFFER_SIZE)
@@ -68,6 +90,8 @@ def handle_client(client_socket, client_address):
         filter_manager.reload_lists()
 
         if is_blocked(host):
+            stats_manager.increment("blocked_requests")
+
             blocked_response = build_blocked_response(host)
             client_socket.sendall(blocked_response)
 
@@ -100,6 +124,8 @@ def handle_client(client_socket, client_address):
         print(f"Forwarded successfully: {method} {url}")
 
     except Exception as e:
+        stats_manager.increment("errors")
+
         error_message = str(e)
         print("Error:", error_message)
 
@@ -133,6 +159,7 @@ def handle_client(client_socket, client_address):
             pass
 
         print(f"Connection closed: {client_address}\n")
+        decrement_active_connections()
 
 
 def start_proxy_server():
@@ -148,7 +175,7 @@ def start_proxy_server():
         while True:
             client_socket, client_address = server_socket.accept()
 
-            # Intissar - Day 3 multithreading
+            # Intissar - Day 3 multithreading: one thread per client
             client_thread = threading.Thread(
                 target=handle_client,
                 args=(client_socket, client_address),
