@@ -1,0 +1,12 @@
+2026-04-22 22:32:16.153966 | 127.0.0.1:49931 | GET http://example.com/ | example.com:80 | 2026-04-22 22:32:16.154004 | ERROR: BLOCKED
+2026-04-22 22:32:34.196885 | 127.0.0.1:57180 | GET http://example.com/ | example.com:80 | 2026-04-22 22:32:34.196887 | ERROR: BLOCKED
+2026-04-22 22:33:24.146445 | 127.0.0.1:57183 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-22 22:33:24.146449 | ERROR: BLOCKED
+2026-04-22 22:33:48.225921 | 127.0.0.1:57185 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-22 22:33:48.225925 | ERROR: BLOCKED
+2026-04-22 22:37:59.831270 | 127.0.0.1:63497 | GET http://example.com/ | example.com:80 | 2026-04-22 22:37:59.831288 | ERROR: BLOCKED
+2026-04-22 22:39:58.436469 | 127.0.0.1:57451 | GET http://example.com/ | example.com:80 | 2026-04-22 22:39:58.436473 | ERROR: BLOCKED
+2026-04-22 22:40:35.122902 | 127.0.0.1:57456 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-22 22:40:35.122906 | ERROR: BLOCKED
+2026-04-22 22:44:15.372950 | 127.0.0.1:65291 | GET http://example.com/ | example.com:80 | 2026-04-22 22:44:15.372966 | ERROR: BLOCKED
+2026-04-22 22:45:05.248753 | 127.0.0.1:65298 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-22 22:45:05.248756 | ERROR: BLOCKED
+2026-04-22 22:49:47.262137 | 127.0.0.1:54052 | GET http://example.com/ | example.com:80 | 2026-04-22 22:49:47.262151 | ERROR: BLOCKED
+2026-04-22 22:52:16.533540 | 127.0.0.1:58640 | GET http://example.com/ | example.com:80 | 2026-04-22 22:52:16.533565 | ERROR: 
+2026-04-22 22:53:50.174758 | 127.0.0.1:51851 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-22 22:53:50.174761 | ERROR: 
