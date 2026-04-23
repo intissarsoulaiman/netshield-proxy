@@ -1,12 +1,13 @@
 # NetShield Proxy
 # Contributor: Intissar
-# Role: Socket server, client handling, request receiving, forwarding integration.
+# Role: Socket server, threaded client handling, request receiving, forwarding integration
 
 import socket
+import threading
 from core.request_parser import parse_http_request
 from core.http_handler import forward_http_request
-from core import logger_manager, stats_manager, filter_manager
 from core.filter_manager import is_blocked, build_blocked_response
+from core import logger_manager, filter_manager
 
 HOST = "127.0.0.1"
 PORT = 8080
@@ -36,76 +37,39 @@ def build_error_response(message):
     return response.encode()
 
 
-def start_proxy_server():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind((HOST, PORT))
-    server_socket.listen(5)
+def handle_client(client_socket, client_address):
+    client_ip, client_port = client_address
 
-    print(f"Server running on {HOST}:{PORT}")
-    print("Waiting for connections...")
+    print(f"Client connected: {client_address}")
 
-    while True:
-        client_socket, client_address = server_socket.accept()
-        client_ip, client_port = client_address
+    try:
+        request_bytes = client_socket.recv(BUFFER_SIZE)
 
-        print(f"Client connected: {client_address}")
+        if not request_bytes:
+            return
 
-        # Laura stats hook: always increment total at start
-        stats_manager.increment("total_requests")
+        print("\nRaw request:")
+        print(request_bytes)
 
-        try:
-            request_bytes = client_socket.recv(BUFFER_SIZE)
+        parsed = parse_http_request(request_bytes)
 
-            if not request_bytes:
-                client_socket.close()
-                continue
+        if "error" in parsed:
+            raise Exception(parsed["error"])
 
-            print("\nRaw request:")
-            print(request_bytes)
+        print("\nParsed request:")
+        for key, value in parsed.items():
+            print(f"{key}: {value}")
 
-            parsed = parse_http_request(request_bytes)
+        method = parsed["method"]
+        host = parsed["host"]
+        port = parsed["port"]
+        url = parsed["full_url"]
 
-            if "error" in parsed:
-                raise Exception(parsed["error"])
+        filter_manager.reload_lists()
 
-            print("\nParsed request:")
-            for key, value in parsed.items():
-                print(f"{key}: {value}")
-
-            method = parsed["method"]
-            host = parsed["host"]           # domain only
-            port = parsed["port"]
-            url = parsed["full_url"]
-
-            # Reload filter files in case Laura changes them while testing
-            filter_manager.reload_lists()
-
-            # Block check BEFORE connecting to target server
-            if is_blocked(host):
-                stats_manager.increment("blocked_requests")
-
-                blocked_response = build_blocked_response(host)
-                client_socket.sendall(blocked_response)
-
-                logger_manager.log_event(
-                    client_ip=client_ip,
-                    client_port=client_port,
-                    target_host=host,
-                    target_port=port,
-                    method=method,
-                    url=url,
-                    error="BLOCKED"
-                )
-
-                print(f"Blocked request to: {host}")
-                client_socket.close()
-                continue
-
-            # Forward request to actual target server
-            response = forward_http_request(parsed)
-
-            client_socket.sendall(response)
+        if is_blocked(host):
+            blocked_response = build_blocked_response(host)
+            client_socket.sendall(blocked_response)
 
             logger_manager.log_event(
                 client_ip=client_ip,
@@ -114,43 +78,89 @@ def start_proxy_server():
                 target_port=port,
                 method=method,
                 url=url,
-                error=""
+                error="BLOCKED"
             )
 
-            print(f"Forwarded successfully: {method} {url}")
+            print(f"Blocked request to: {host}")
+            return
 
-        except Exception as e:
-            stats_manager.increment("errors")
+        response = forward_http_request(parsed)
+        client_socket.sendall(response)
 
-            error_message = str(e)
-            print("Error:", error_message)
+        logger_manager.log_event(
+            client_ip=client_ip,
+            client_port=client_port,
+            target_host=host,
+            target_port=port,
+            method=method,
+            url=url,
+            error=""
+        )
 
-            try:
-                target_host = parsed.get("host", "unknown") if "parsed" in locals() else "unknown"
-                target_port = parsed.get("port", 0) if "parsed" in locals() else 0
-                method = parsed.get("method", "") if "parsed" in locals() else ""
-                url = parsed.get("full_url", "") if "parsed" in locals() else ""
+        print(f"Forwarded successfully: {method} {url}")
 
-                logger_manager.log_event(
-                    client_ip=client_ip,
-                    client_port=client_port,
-                    target_host=target_host,
-                    target_port=target_port,
-                    method=method,
-                    url=url,
-                    error=error_message
-                )
-            except Exception as log_error:
-                print("Logging error:", log_error)
+    except Exception as e:
+        error_message = str(e)
+        print("Error:", error_message)
 
-            try:
-                client_socket.sendall(build_error_response(error_message))
-            except Exception:
-                pass
+        try:
+            target_host = parsed.get("host", "unknown") if "parsed" in locals() else "unknown"
+            target_port = parsed.get("port", 0) if "parsed" in locals() else 0
+            method = parsed.get("method", "") if "parsed" in locals() else ""
+            url = parsed.get("full_url", "") if "parsed" in locals() else ""
 
-        finally:
+            logger_manager.log_event(
+                client_ip=client_ip,
+                client_port=client_port,
+                target_host=target_host,
+                target_port=target_port,
+                method=method,
+                url=url,
+                error=error_message
+            )
+        except Exception as log_error:
+            print("Logging error:", log_error)
+
+        try:
+            client_socket.sendall(build_error_response(error_message))
+        except Exception:
+            pass
+
+    finally:
+        try:
             client_socket.close()
-            print("Connection closed\n")
+        except Exception:
+            pass
+
+        print(f"Connection closed: {client_address}\n")
+
+
+def start_proxy_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind((HOST, PORT))
+    server_socket.listen(20)
+
+    print(f"Server running on {HOST}:{PORT}")
+    print("Waiting for connections...")
+
+    try:
+        while True:
+            client_socket, client_address = server_socket.accept()
+
+            # Intissar - Day 3 multithreading
+            client_thread = threading.Thread(
+                target=handle_client,
+                args=(client_socket, client_address),
+                daemon=True
+            )
+            client_thread.start()
+
+    except KeyboardInterrupt:
+        print("\nServer stopped by user.")
+
+    finally:
+        server_socket.close()
 
 
 if __name__ == "__main__":
