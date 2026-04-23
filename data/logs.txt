@@ -20,3 +20,9 @@
 2026-04-23 11:56:21.618186 | 127.0.0.1:62761 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-23 11:56:21.618190 | ERROR: 
 2026-04-23 11:56:25.815525 | 127.0.0.1:58850 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-23 11:56:25.815528 | ERROR: 
 2026-04-23 12:06:38.245987 | 127.0.0.1:60339 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-23 12:06:38.245993 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-23 16:42:29.671950 | 127.0.0.1:52988 | GET http://google.com/ | google.com:80 | 2026-04-23 16:42:29.671982 | ERROR: 
+2026-04-23 16:45:01.397872 | 127.0.0.1:55494 | GET http://facebook.com/ | facebook.com:80 | 2026-04-23 16:45:01.397876 | ERROR: BLOCKED
+2026-04-23 16:52:43.377605 | 127.0.0.1:57187 | GET http://nonexistent12345.com/ | nonexistent12345.com:80 | 2026-04-23 16:52:43.377610 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-23 16:53:08.242477 | 127.0.0.1:62369 | GET http://nonexistent12345.com/ | nonexistent12345.com:80 | 2026-04-23 16:53:08.242482 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-23 19:35:57.008984 | 127.0.0.1:54397 | GET http://google.com/ | google.com:80 | 2026-04-23 19:35:57.008994 | ERROR: 
+2026-04-23 19:38:30.362081 | 127.0.0.1:59864 | GET http://example.com/ | example.com:80 | 2026-04-23 19:38:30.362096 | ERROR: BLOCKED
