@@ -1,11 +1,12 @@
 # NetShield Proxy
 # Contributor: Intissar
-# Role: Socket server, threaded client handling, request receiving, forwarding integration
+# Role: Socket server, threaded client handling, HTTP forwarding, HTTPS CONNECT integration
 
 import socket
 import threading
 from core.request_parser import parse_http_request
 from core.http_handler import forward_http_request
+from core.https_tunnel import tunnel_https
 from core.filter_manager import is_blocked, build_blocked_response
 from core import logger_manager, filter_manager, stats_manager
 
@@ -13,7 +14,6 @@ HOST = "127.0.0.1"
 PORT = 8080
 BUFFER_SIZE = 4096
 
-# Intissar - local active connection tracking for Day 3
 active_connections = 0
 active_connections_lock = threading.Lock()
 
@@ -60,8 +60,6 @@ def handle_client(client_socket, client_address):
     increment_active_connections()
 
     print(f"Client connected: {client_address}")
-
-    # Intissar + Laura integration
     stats_manager.increment("total_requests")
 
     try:
@@ -86,6 +84,7 @@ def handle_client(client_socket, client_address):
         host = parsed["host"]
         port = parsed["port"]
         url = parsed["full_url"]
+        is_connect = parsed.get("is_connect", False)
 
         filter_manager.reload_lists()
 
@@ -108,6 +107,25 @@ def handle_client(client_socket, client_address):
             print(f"Blocked request to: {host}")
             return
 
+        # Intissar Day 4: HTTPS CONNECT handling
+        if is_connect:
+            print(f"Opening HTTPS tunnel to {host}:{port}")
+            tunnel_https(client_socket, host, port)
+
+            logger_manager.log_event(
+                client_ip=client_ip,
+                client_port=client_port,
+                target_host=host,
+                target_port=port,
+                method=method,
+                url=url,
+                error=""
+            )
+
+            print(f"HTTPS tunnel closed: {host}:{port}")
+            return
+
+        # Regular HTTP forwarding
         response = forward_http_request(parsed)
         client_socket.sendall(response)
 
@@ -175,7 +193,6 @@ def start_proxy_server():
         while True:
             client_socket, client_address = server_socket.accept()
 
-            # Intissar - Day 3 multithreading: one thread per client
             client_thread = threading.Thread(
                 target=handle_client,
                 args=(client_socket, client_address),
