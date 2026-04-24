@@ -1,6 +1,6 @@
 # NetShield Proxy
 # Contributor: Intissar
-# Role: HTTP request parsing (method, path, headers, host, port, full URL)
+# Role: HTTP/HTTPS request parsing (method, path, headers, host, port, full URL)
 
 from urllib.parse import urlsplit
 
@@ -33,12 +33,39 @@ def parse_http_request(request_bytes):
                 key, value = line.split(":", 1)
                 headers[key.strip()] = value.strip()
 
+        # HTTPS CONNECT case
+        if method == "CONNECT":
+            if ":" in path:
+                host, port_text = path.rsplit(":", 1)
+                try:
+                    port = int(port_text)
+                except ValueError:
+                    port = 443
+            else:
+                host = path
+                port = 443
+
+            host = host.strip().lower()
+
+            return {
+                "method": method,
+                "path": path,
+                "normalized_path": "",
+                "version": version,
+                "headers": headers,
+                "host": host,
+                "port": port,
+                "full_url": f"{host}:{port}",
+                "body": b"",
+                "is_connect": True
+            }
+
+        # Regular HTTP case
         host_header = headers.get("Host", "")
         host = ""
         port = 80
         normalized_path = path
 
-        # Case 1: absolute URL from proxy requests
         if path.startswith("http://") or path.startswith("https://"):
             parts = urlsplit(path)
             host = parts.hostname or ""
@@ -47,8 +74,6 @@ def parse_http_request(request_bytes):
             if parts.query:
                 normalized_path += "?" + parts.query
             full_url = path
-
-        # Case 2: relative path + Host header
         else:
             if ":" in host_header:
                 host, port_text = host_header.rsplit(":", 1)
@@ -79,7 +104,8 @@ def parse_http_request(request_bytes):
             "host": host,
             "port": port,
             "full_url": full_url,
-            "body": body
+            "body": body,
+            "is_connect": False
         }
 
     except Exception as e:
