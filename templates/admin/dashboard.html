@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}— Dashboard{% endblock %}
+
+{% block head %}
+<script>
+  // Live-refresh stats every 5s
+  async function refreshStats() {
+    try {
+      const res = await fetch('/api/stats');
+      const s = await res.json();
+      document.getElementById('val-total').textContent    = s.total_requests;
+      document.getElementById('val-blocked').textContent  = s.blocked_requests;
+      document.getElementById('val-errors').textContent   = s.errors;
+      document.getElementById('val-active').textContent   = s.active_connections;
+      document.getElementById('val-hits').textContent     = s.cache_hits;
+      document.getElementById('val-misses').textContent   = s.cache_misses;
+
+      const cTotal = (s.cache_hits + s.cache_misses) || 1;
+      const total  = s.total_requests || 1;
+      document.getElementById('bar-hit').style.width   = (s.cache_hits / cTotal * 100) + '%';
+      document.getElementById('bar-block').style.width = (s.blocked_requests / total * 100) + '%';
+      document.getElementById('bar-err').style.width   = (s.errors / total * 100) + '%';
+      document.getElementById('val-uptime').textContent = formatUptime(s.uptime_seconds);
+    } catch(e) {}
+  }
+
+  function formatUptime(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  setInterval(refreshStats, 5000);
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p>Live overview — refreshes every 5 seconds</p>
+</div>
+
+<!-- Top stats row -->
+<div class="grid-4">
+  <div class="card">
+    <div class="card-label">Total Requests</div>
+    <div class="card-value" id="val-total">{{ stats.total_requests }}</div>
+    <div class="card-sub">since proxy start</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Active Connections</div>
+    <div class="card-value" style="color:var(--accent2)" id="val-active">{{ active_connections }}</div>
+    <div class="card-sub">right now</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Blocked</div>
+    <div class="card-value" style="color:var(--danger)" id="val-blocked">{{ stats.blocked_requests }}</div>
+    <div class="card-sub" id="bar-block-label">{{ block_rate }}% of traffic</div>
+    <div class="bar-bg"><div class="bar-fill" id="bar-block" style="background:var(--danger);width:{{ block_rate | int }}%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Errors</div>
+    <div class="card-value" style="color:var(--warn)" id="val-errors">{{ stats.errors }}</div>
+    <div class="card-sub">{{ error_rate }}% of traffic</div>
+    <div class="bar-bg"><div class="bar-fill" id="bar-err" style="background:var(--warn);width:{{ error_rate | int }}%"></div></div>
+  </div>
+</div>
+
+<div class="section-title">Cache Performance</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-label">Cache Hits</div>
+    <div class="card-value" id="val-hits">{{ stats.cache_hits }}</div>
+    <div class="card-sub">Hit rate: {{ hit_rate }}%</div>
+    <div class="bar-bg"><div class="bar-fill" id="bar-hit" style="background:var(--accent2);width:{{ hit_rate | int }}%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Cache Misses</div>
+    <div class="card-value" style="color:var(--muted)" id="val-misses">{{ stats.cache_misses }}</div>
+    <div class="card-sub">Miss rate: {{ 100 - hit_rate }}%</div>
+  </div>
+</div>
+
+<div class="section-title">System</div>
+
+<div class="card" style="display:flex;gap:40px;align-items:center;padding:16px 24px;">
+  <div>
+    <div class="card-label">Uptime</div>
+    <div class="mono" style="font-size:18px;color:var(--accent2)" id="val-uptime">
+      {% set h = (stats.uptime_seconds // 3600) %}
+      {% set m = ((stats.uptime_seconds % 3600) // 60) %}
+      {% set s = (stats.uptime_seconds % 60) %}
+      {{ '%02d'|format(h) }}:{{ '%02d'|format(m) }}:{{ '%02d'|format(s) }}
+    </div>
+  </div>
+  <div>
+    <div class="card-label">Proxy Host</div>
+    <div class="mono" style="color:var(--text)">127.0.0.1:8080</div>
+  </div>
+  <div>
+    <div class="card-label">Dashboard</div>
+    <div class="mono" style="color:var(--text)">127.0.0.1:5050</div>
+  </div>
+  <div style="margin-left:auto">
+    <a href="{{ url_for('logs') }}" class="btn btn-ghost">View Logs →</a>
+  </div>
+</div>
+
+{% endblock %}

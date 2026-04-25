@@ -1,8 +1,10 @@
+# NetShield Proxy
 # Contributor: Laura
 # File: core/stats_manager.py
-# Purpose: Track proxy statistics safely across requests.
+# Purpose: Track proxy statistics safely across threads.
 
 import threading
+import time
 
 lock = threading.Lock()
 
@@ -11,8 +13,10 @@ stats = {
     "blocked_requests": 0,
     "errors": 0,
     "cache_hits": 0,
-    "cache_misses": 0
+    "cache_misses": 0,
 }
+
+_start_time = time.time()
 
 
 def increment(key):
@@ -23,4 +27,14 @@ def increment(key):
 
 def get_stats():
     with lock:
-        return stats.copy()
+        result = stats.copy()
+        result["uptime_seconds"] = int(time.time() - _start_time)
+        return result
+
+
+def reset_stats():
+    global _start_time
+    with lock:
+        for key in stats:
+            stats[key] = 0
+        _start_time = time.time()

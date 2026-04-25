@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}— Filters{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Filter Rules</h1>
+  <p>Blacklist always checked. Whitelist, if non-empty, restricts traffic to listed domains only.</p>
+</div>
+
+<div class="grid-2">
+
+  <!-- BLACKLIST -->
+  <div>
+    <div class="section-title flex-between" style="margin-top:0">
+      <span>Blacklist</span>
+      <span style="color:var(--danger)">{{ blacklist|length }} domains</span>
+    </div>
+
+    <!-- Add form -->
+    <form method="post" action="{{ url_for('blacklist_add') }}" style="margin-bottom:12px;">
+      <div class="input-row">
+        <input type="text" name="domain" placeholder="e.g. ads.example.com" required>
+        <button type="submit" class="btn btn-primary">+ Add</button>
+      </div>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Domain</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% if blacklist %}
+            {% for domain in blacklist %}
+            <tr>
+              <td class="mono">{{ domain }}</td>
+              <td style="text-align:right">
+                <form method="post" action="{{ url_for('blacklist_remove') }}" style="display:inline">
+                  <input type="hidden" name="domain" value="{{ domain }}">
+                  <button type="submit" class="btn btn-danger" style="padding:3px 10px;font-size:11px;">Remove</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="2"><div class="empty-state">Blacklist is empty.</div></td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- WHITELIST -->
+  <div>
+    <div class="section-title flex-between" style="margin-top:0">
+      <span>Whitelist</span>
+      <span style="color:var(--accent2)">{{ whitelist|length }} domains</span>
+    </div>
+
+    <form method="post" action="{{ url_for('whitelist_add') }}" style="margin-bottom:12px;">
+      <div class="input-row">
+        <input type="text" name="domain" placeholder="e.g. example.com" required>
+        <button type="submit" class="btn btn-primary">+ Add</button>
+      </div>
+    </form>
+
+    {% if whitelist %}
+    <div style="background:rgba(0,255,170,0.05);border:1px solid rgba(0,255,170,0.15);border-radius:var(--radius);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--accent2);">
+      ⚠ Whitelist active — all traffic not matching will be blocked.
+    </div>
+    {% endif %}
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Domain</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% if whitelist %}
+            {% for domain in whitelist %}
+            <tr>
+              <td class="mono">{{ domain }}</td>
+              <td style="text-align:right">
+                <form method="post" action="{{ url_for('whitelist_remove') }}" style="display:inline">
+                  <input type="hidden" name="domain" value="{{ domain }}">
+                  <button type="submit" class="btn btn-danger" style="padding:3px 10px;font-size:11px;">Remove</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="2"><div class="empty-state">Whitelist empty — all non-blocked traffic allowed.</div></td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
