@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}— Logs{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1>Request Logs</h1>
+    <p>Last 300 events, newest first</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<form method="get" action="{{ url_for('logs') }}" style="display:flex;gap:10px;margin-bottom:18px;align-items:center;">
+  <select name="method" onchange="this.form.submit()">
+    <option value="">All Methods</option>
+    {% for m in ['GET','POST','PUT','DELETE','HEAD','OPTIONS'] %}
+      <option value="{{ m }}" {{ 'selected' if method_filter == m }}>{{ m }}</option>
+    {% endfor %}
+  </select>
+  <select name="error" onchange="this.form.submit()">
+    <option value="">All Events</option>
+    <option value="blocked_only" {{ 'selected' if error_filter == 'blocked_only' }}>Blocked Only</option>
+    <option value="errors_only"  {{ 'selected' if error_filter == 'errors_only' }}>Errors Only</option>
+  </select>
+  <a href="{{ url_for('logs') }}" class="btn btn-ghost">Reset</a>
+  <span style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:auto">
+    {{ logs|length }} entries
+  </span>
+</form>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Client</th>
+        <th>Method</th>
+        <th>URL</th>
+        <th>Target</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if logs %}
+        {% for entry in logs %}
+        <tr>
+          <td class="mono" style="white-space:nowrap;color:var(--muted)">
+            {{ entry.request_timestamp[:19] }}
+          </td>
+          <td class="mono">{{ entry.client_ip }}:{{ entry.client_port }}</td>
+          <td>
+            {% if entry.method == 'GET' %}
+              <span class="badge badge-get">{{ entry.method }}</span>
+            {% elif entry.method == 'POST' %}
+              <span class="badge badge-post">{{ entry.method }}</span>
+            {% else %}
+              <span class="badge badge-ghost">{{ entry.method }}</span>
+            {% endif %}
+          </td>
+          <td class="mono" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            <span title="{{ entry.url }}">{{ entry.url }}</span>
+          </td>
+          <td class="mono">{{ entry.target_host }}:{{ entry.target_port }}</td>
+          <td>
+            {% if entry.error == 'BLOCKED' %}
+              <span class="badge badge-blocked">BLOCKED</span>
+            {% elif entry.error %}
+              <span class="badge badge-error" title="{{ entry.error }}">ERROR</span>
+            {% else %}
+              <span class="badge badge-ok">OK</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="6"><div class="empty-state">No log entries found.</div></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}— Cache{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1>Cache Manager</h1>
+    <p>{{ entries|length }} active entries</p>
+  </div>
+  <form method="post" action="{{ url_for('cache_clear') }}" onsubmit="return confirm('Clear all cache entries?')">
+    <button type="submit" class="btn btn-danger">✕ Clear All</button>
+  </form>
+</div>
+
+<!-- Performance summary -->
+<div class="grid-2" style="margin-bottom:24px;">
+  <div class="card">
+    <div class="card-label">Hit Rate</div>
+    <div class="card-value" style="color:var(--accent2)">{{ hit_rate }}%</div>
+    <div class="card-sub">{{ hits }} hits / {{ misses }} misses</div>
+    <div class="bar-bg">
+      <div class="bar-fill" style="background:var(--accent2);width:{{ hit_rate | int }}%"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">Entries in Cache</div>
+    <div class="card-value">{{ entries|length }}</div>
+    <div class="card-sub">active, non-expired</div>
+  </div>
+</div>
+
+<div class="section-title">Cache Entries</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Cache Key</th>
+        <th>Expires In</th>
+        <th>TTL</th>
+        <th>Size</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if entries %}
+        {% for entry in entries %}
+        <tr>
+          <td class="mono" style="word-break:break-all;">{{ entry.key }}</td>
+          <td>
+            {% if entry.expires_in < 10 %}
+              <span style="color:var(--danger)">{{ entry.expires_in }}s</span>
+            {% elif entry.expires_in < 30 %}
+              <span style="color:var(--warn)">{{ entry.expires_in }}s</span>
+            {% else %}
+              <span style="color:var(--accent2)">{{ entry.expires_in }}s</span>
+            {% endif %}
+          </td>
+          <td class="mono">{{ entry.ttl }}s</td>
+          <td class="mono">{{ entry.size }} B</td>
+          <td>
+            <form method="post" action="{{ url_for('cache_delete') }}" style="display:inline">
+              <input type="hidden" name="key" value="{{ entry.key }}">
+              <button type="submit" class="btn btn-danger" style="padding:4px 10px;font-size:11px;">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="5"><div class="empty-state">Cache is empty.</div></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
