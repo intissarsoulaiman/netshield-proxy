@@ -32,7 +32,8 @@ NetShield-Proxy/
 │   ├── whitelist.txt
 │   ├── logs.txt
 │   └── logs.json
-└── README.md```
+└── README.md
+```
 
 ## How It Works
 
@@ -43,102 +44,116 @@ For GET requests, the proxy can store responses in cache and serve repeated requ
 ## Running the Project
 
 Start the proxy server:
+
+```
 python proxy_server.py
+```
+
 Expected output:
+
+```
 Server running on 127.0.0.1:8080
 Waiting for connections...
+```
 
-Example Tests:
-HTTP GET
+### Example Tests
+
+**HTTP GET**
+```
 curl -x http://127.0.0.1:8080 http://example.com
+```
 
-HTTP POST
+**HTTP POST**
+```
 curl -x http://127.0.0.1:8080 -X POST http://httpbin.org/post -d "name=test"
+```
 
-HTTPS CONNECT
+**HTTPS CONNECT**
+```
 curl -x http://127.0.0.1:8080 https://example.com -k
+```
 
-Blocked Request
-Add a domain to data/blacklist.txt, then run:
+**Blocked Request** — Add a domain to `data/blacklist.txt`, then run:
+```
 curl -x http://127.0.0.1:8080 http://example.com
+```
 
-Filtering
+## Filtering
+
 Filtering is controlled by:
-data/blacklist.txt
-data/whitelist.txt
+
+- `data/blacklist.txt`
+- `data/whitelist.txt`
+
 If the whitelist is not empty, only listed domains are allowed. Any domain in the blacklist is blocked.
 
-Caching
-The proxy caches eligible HTTP GET responses. Cache behavior includes:
-- cache key generation using method + URL
-- TTL extraction from response headers
-- fallback expiration time
-- cache hit / cache miss tracking
+## Caching
 
-HTTPS Support
+The proxy caches eligible HTTP GET responses. Cache behavior includes:
+
+- Cache key generation using method + URL
+- TTL extraction from response headers
+- Fallback expiration time
+- Cache hit / cache miss tracking
+
+## HTTPS Support
+
 HTTPS is supported using CONNECT tunneling. The proxy:
-- parses the CONNECT request
-- connects to the target server
-- sends 200 Connection Established
-- relays encrypted traffic in both directions
+
+- Parses the CONNECT request
+- Connects to the target server
+- Sends `200 Connection Established`
+- Relays encrypted traffic in both directions
 
 ## Team Member Contributions
 
-## Member 1: Intissar Soulaiman
+### Member 1: Intissar Soulaiman
 
-## Responsible for: Core Proxy Server & HTTPS CONNECT Support
+**Responsible for:** Core Proxy Server & HTTPS CONNECT Support
 
-## Contributions:
-Set up the main proxy server using Python sockets and handled client connections.
+**Contributions:**
 
-Implemented request parsing to extract the method, path, headers, host, and port from incoming client requests.
+- Set up the main proxy server using Python sockets and handled client connections.
+- Implemented request parsing to extract the method, path, headers, host, and port from incoming client requests.
+- Developed the HTTP forwarding flow so the proxy could send GET and POST requests to the target server and return the response back to the client.
+- Added multithreading so the proxy could handle multiple client requests at the same time without crashing.
+- Integrated the main proxy flow with filtering, logging, stats, and cache support.
+- Implemented HTTPS CONNECT tunneling by creating a secure tunnel between the client and target server and relaying traffic in both directions.
+- Tested the core proxy features, including HTTP forwarding, multithreading, error handling, blocked requests, and HTTPS CONNECT support.
 
-Developed the HTTP forwarding flow so the proxy could send GET and POST requests to the target server and return the response back to the client.
+### Member 2: Laura Malaeb
 
-Added multithreading so the proxy could handle multiple client requests at the same time without crashing.
+**Responsible for:** Support Modules & Admin Dashboard
 
-Integrated the main proxy flow with filtering, logging, stats, and cache support.
+**Contributions:**
 
-Implemented HTTPS CONNECT tunneling by creating a secure tunnel between the client and target server and relaying traffic in both directions.
-
-Tested the core proxy features, including HTTP forwarding, multithreading, error handling, blocked requests, and HTTPS CONNECT support.
-
-
-## Member 2: Laura Malaeb
-## Responsible for: Support Modules & Admin Dashboard
-
-## Contributions:
-Developed the cache manager to store eligible GET responses and handle cache expiration.
-
-Implemented the logger manager to record request details, response timestamps, and error messages in both text and JSON log files.
-
-Built the filter manager to support blacklist and whitelist behavior, including blocked response handling.
-
-Created the stats manager to track total requests, blocked requests, errors, cache hits, and cache misses.
-
-Worked on the admin/dashboard side to display logs, cache entries, filters, and usage statistics.
-
-Tested the support modules and dashboard features, including cache behavior, filtering, logging, and stats display.
+- Developed the cache manager to store eligible GET responses and handle cache expiration.
+- Implemented the logger manager to record request details, response timestamps, and error messages in both text and JSON log files.
+- Built the filter manager to support blacklist and whitelist behavior, including blocked response handling.
+- Created the stats manager to track total requests, blocked requests, errors, cache hits, and cache misses.
+- Worked on the admin/dashboard side to display logs, cache entries, filters, and usage statistics.
+- Tested the support modules and dashboard features, including cache behavior, filtering, logging, and stats display.
 
 ## Testing Completed
-HTTP GET forwarding
-HTTP POST forwarding
-blocked request handling
-blocked response page
-invalid host / error handling
-multithreading
-concurrent request handling
-HTTPS CONNECT tunneling
-blocked HTTPS handling
-cache store and cache hit verification
 
+- HTTP GET forwarding
+- HTTP POST forwarding
+- Blocked request handling
+- Blocked response page
+- Invalid host / error handling
+- Multithreading
+- Concurrent request handling
+- HTTPS CONNECT tunneling
+- Blocked HTTPS handling
+- Cache store and cache hit verification
 
 ## Known Limitations
-HTTPS traffic is tunneled but not decrypted
-caching focuses on HTTP GET requests
-POST requests are forwarded but not cached
-some dashboard features depend on final full integration
 
+- HTTPS traffic is tunneled but not decrypted
+- Caching focuses on HTTP GET requests
+- POST requests are forwarded but not cached
+- Some dashboard features depend on final full integration
 
 ## Notes
+
 This project was built to satisfy the proxy server requirements while also adding bonus-related functionality through HTTPS tunneling and admin-side integration.
