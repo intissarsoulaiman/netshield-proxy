@@ -37,3 +37,13 @@
 2026-04-25 13:53:46.884044 | 127.0.0.1:50927 | GET http://example.com/ | example.com:80 | 2026-04-25 13:53:46.884047 | ERROR: CACHE_HIT
 2026-04-25 13:54:40.209063 | 127.0.0.1:50929 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-25 13:54:40.209066 | ERROR: 
 2026-04-25 13:55:03.067753 | 127.0.0.1:63358 | CONNECT example.com:443 | example.com:443 | 2026-04-25 13:55:03.067758 | ERROR: 
+2026-04-25 14:44:36.555659 | 127.0.0.1:50840 | GET http://example.com/ | example.com:80 | 2026-04-25 14:44:36.555684 | ERROR: 
+2026-04-25 14:45:55.633949 | 127.0.0.1:49672 | GET http://example.com/ | example.com:80 | 2026-04-25 14:45:55.633954 | ERROR: 
+2026-04-25 14:46:11.505262 | 127.0.0.1:49676 | GET http://example.com/ | example.com:80 | 2026-04-25 14:46:11.505267 | ERROR: CACHE_HIT
+2026-04-25 14:47:22.787138 | 127.0.0.1:49677 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-25 14:47:22.787144 | ERROR: 
+2026-04-25 14:47:56.987875 | 127.0.0.1:49685 | CONNECT example.com:443 | example.com:443 | 2026-04-25 14:47:56.987879 | ERROR: 
+2026-04-25 14:48:17.938043 | 127.0.0.1:49687 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-25 14:48:17.938052 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-25 14:48:51.933368 | 127.0.0.1:53202 | GET http://example.com/ | example.com:80 | 2026-04-25 14:48:51.933375 | ERROR: 
+2026-04-25 14:48:59.594730 | 127.0.0.1:53204 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-25 14:48:59.594735 | ERROR: 
+2026-04-25 14:49:09.476991 | 127.0.0.1:53206 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-25 14:49:09.476995 | ERROR: 
+2026-04-25 14:54:30.508594 | 127.0.0.1:52646 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-25 14:54:30.508599 | ERROR: [Errno 11001] getaddrinfo failed
