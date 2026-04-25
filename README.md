@@ -32,15 +32,15 @@ NetShield-Proxy/
 │   ├── whitelist.txt
 │   ├── logs.txt
 │   └── logs.json
-└── README.md
+└── README.md```
 
-How It Works
+## How It Works
 
 The proxy accepts client requests, parses them, checks filtering rules, forwards allowed HTTP requests to target servers, and returns the response back to the client. For HTTPS, it uses the CONNECT method to open a secure tunnel without decrypting the traffic.
 
 For GET requests, the proxy can store responses in cache and serve repeated requests from cache when valid.
 
-Running the Project
+## Running the Project
 
 Start the proxy server:
 python proxy_server.py
@@ -82,13 +82,13 @@ HTTPS is supported using CONNECT tunneling. The proxy:
 - sends 200 Connection Established
 - relays encrypted traffic in both directions
 
-Team Member Contributions
+## Team Member Contributions
 
-Member 1: Intissar Soulaiman
+## Member 1: Intissar Soulaiman
 
-Responsible for: Core Proxy Server & HTTPS CONNECT Support
+## Responsible for: Core Proxy Server & HTTPS CONNECT Support
 
-Contributions:
+## Contributions:
 Set up the main proxy server using Python sockets and handled client connections.
 
 Implemented request parsing to extract the method, path, headers, host, and port from incoming client requests.
@@ -104,10 +104,10 @@ Implemented HTTPS CONNECT tunneling by creating a secure tunnel between the clie
 Tested the core proxy features, including HTTP forwarding, multithreading, error handling, blocked requests, and HTTPS CONNECT support.
 
 
-Member 2: Laura Malaeb
-Responsible for: Support Modules & Admin Dashboard
+## Member 2: Laura Malaeb
+## Responsible for: Support Modules & Admin Dashboard
 
-Contributions:
+## Contributions:
 Developed the cache manager to store eligible GET responses and handle cache expiration.
 
 Implemented the logger manager to record request details, response timestamps, and error messages in both text and JSON log files.
@@ -120,7 +120,7 @@ Worked on the admin/dashboard side to display logs, cache entries, filters, and 
 
 Tested the support modules and dashboard features, including cache behavior, filtering, logging, and stats display.
 
-Testing Completed
+## Testing Completed
 HTTP GET forwarding
 HTTP POST forwarding
 blocked request handling
@@ -133,12 +133,12 @@ blocked HTTPS handling
 cache store and cache hit verification
 
 
-Known Limitations
+## Known Limitations
 HTTPS traffic is tunneled but not decrypted
 caching focuses on HTTP GET requests
 POST requests are forwarded but not cached
 some dashboard features depend on final full integration
 
 
-Notes
+## Notes
 This project was built to satisfy the proxy server requirements while also adding bonus-related functionality through HTTPS tunneling and admin-side integration.
