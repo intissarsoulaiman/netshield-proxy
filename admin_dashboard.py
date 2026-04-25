@@ -13,7 +13,6 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 from core import (
     cache_manager,
-    stats_manager,
     filter_manager,
     logger_manager,
 )
@@ -29,12 +28,59 @@ except Exception:
 app = Flask(__name__, template_folder="templates/admin")
 
 
+# ── Stats from log file (shared source of truth between proxy + dashboard) ────
+
+def compute_stats_from_logs():
+    import json, time
+    stats = {
+        "total_requests":   0,
+        "blocked_requests": 0,
+        "errors":           0,
+        "cache_hits":       0,
+        "cache_misses":     0,
+        "uptime_seconds":   0,
+    }
+
+    # uptime — read start time written by proxy_server.py on startup
+    try:
+        with open("data/proxy_start.json", "r") as f:
+            data = json.load(f)
+        stats["uptime_seconds"] = int(time.time() - data["start_time"])
+    except Exception:
+        pass
+
+    try:
+        with open("data/logs.json", "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except Exception:
+                    continue
+                error = entry.get("error", "")
+                stats["total_requests"] += 1
+                if error == "BLOCKED":
+                    stats["blocked_requests"] += 1
+                elif error == "CACHE_HIT":
+                    stats["cache_hits"] += 1
+                elif error == "":
+                    if entry.get("method") == "GET":
+                        stats["cache_misses"] += 1
+                else:
+                    stats["errors"] += 1
+    except FileNotFoundError:
+        pass
+
+    return stats
+
 # ── Dashboard Home ─────────────────────────────────────────────────────────────
 
 @app.route("/")
 def dashboard():
-    st = stats_manager.get_stats()
-    total = st["total_requests"] or 1  # avoid /0
+    st = compute_stats_from_logs()
+    total = st["total_requests"] or 1
     cache_total = (st["cache_hits"] + st["cache_misses"]) or 1
     return render_template(
         "dashboard.html",
@@ -55,7 +101,11 @@ def logs():
     error_filter  = request.args.get("error", "")
     if method_filter:
         entries = [e for e in entries if e.get("method") == method_filter]
-    if error_filter == "errors_only":
+    if error_filter == "accepted_only":
+        entries = [e for e in entries if e.get("error") == ""]
+    elif error_filter == "cache_hits_only":
+        entries = [e for e in entries if e.get("error") == "CACHE_HIT"]
+    elif error_filter == "errors_only":
         entries = [e for e in entries if e.get("error") and e["error"] != "BLOCKED"]
     elif error_filter == "blocked_only":
         entries = [e for e in entries if e.get("error") == "BLOCKED"]
@@ -68,7 +118,7 @@ def logs():
 @app.route("/cache")
 def cache_view():
     entries = cache_manager.list_cache()
-    st = stats_manager.get_stats()
+    st = compute_stats_from_logs()
     cache_total = (st["cache_hits"] + st["cache_misses"]) or 1
     return render_template(
         "cache.html",
@@ -139,7 +189,7 @@ def whitelist_remove():
 
 @app.route("/api/stats")
 def api_stats():
-    st = stats_manager.get_stats()
+    st = compute_stats_from_logs()
     st["active_connections"] = _active_connections()
     return jsonify(st)
 
