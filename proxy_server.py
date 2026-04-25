@@ -1,6 +1,6 @@
 # NetShield Proxy
 # Contributor: Intissar
-# Role: Socket server, threaded client handling, HTTP forwarding, HTTPS CONNECT integration
+# Role: Socket server, threaded client handling, HTTP forwarding, HTTPS CONNECT integration, cache integration
 
 import socket
 import threading
@@ -8,7 +8,7 @@ from core.request_parser import parse_http_request
 from core.http_handler import forward_http_request
 from core.https_tunnel import tunnel_https
 from core.filter_manager import is_blocked, build_blocked_response
-from core import logger_manager, filter_manager, stats_manager
+from core import logger_manager, filter_manager, stats_manager, cache_manager
 
 HOST = "127.0.0.1"
 PORT = 8080
@@ -88,6 +88,7 @@ def handle_client(client_socket, client_address):
 
         filter_manager.reload_lists()
 
+        # 1) Filtering
         if is_blocked(host):
             stats_manager.increment("blocked_requests")
 
@@ -107,7 +108,7 @@ def handle_client(client_socket, client_address):
             print(f"Blocked request to: {host}")
             return
 
-        # Intissar Day 4: HTTPS CONNECT handling
+        # 2) HTTPS CONNECT (Intissar bonus path)
         if is_connect:
             print(f"Opening HTTPS tunnel to {host}:{port}")
             tunnel_https(client_socket, host, port)
@@ -125,9 +126,40 @@ def handle_client(client_socket, client_address):
             print(f"HTTPS tunnel closed: {host}:{port}")
             return
 
-        # Regular HTTP forwarding
+        # 3) HTTP GET cache check
+        cache_key = None
+        if method == "GET":
+            cache_key = cache_manager.generate_cache_key(method, url)
+            cached_response = cache_manager.get_cache(cache_key)
+
+            if cached_response is not None:
+                stats_manager.increment("cache_hits")
+                client_socket.sendall(cached_response)
+
+                logger_manager.log_event(
+                    client_ip=client_ip,
+                    client_port=client_port,
+                    target_host=host,
+                    target_port=port,
+                    method=method,
+                    url=url,
+                    error="CACHE_HIT"
+                )
+
+                print(f"Served from cache: {url}")
+                return
+
+            stats_manager.increment("cache_misses")
+
+        # 4) Regular HTTP forwarding
         response = forward_http_request(parsed)
         client_socket.sendall(response)
+
+        # 5) Store GET response in cache
+        if method == "GET" and cache_key is not None:
+            response_headers = cache_manager.parse_response_headers(response)
+            cache_manager.set_cache(cache_key, response, response_headers)
+            print(f"Stored in cache: {url}")
 
         logger_manager.log_event(
             client_ip=client_ip,
