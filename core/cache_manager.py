@@ -5,12 +5,61 @@
 
 import time
 import threading
+import json
+import os
 from email.utils import parsedate_to_datetime
 
 cache = {}
 lock = threading.Lock()
 
 DEFAULT_TTL = 60  # fallback
+CACHE_INDEX_PATH = "data/cache_index.json"
+
+
+# ── Cache Index (disk) ────────────────────────────────────────────────────────
+
+def _save_index():
+    """Write a lightweight index of current cache entries to disk.
+    Called internally after every set/delete/clear so the dashboard
+    (running in a separate process) can read it."""
+    now = time.time()
+    entries = []
+    for key, entry in cache.items():
+        if now < entry["expiry"]:
+            entries.append({
+                "key":        key,
+                "expiry":     entry["expiry"],
+                "ttl":        entry.get("ttl", DEFAULT_TTL),
+                "stored_at":  entry.get("stored_at", now),
+                "size":       entry.get("size", 0),
+            })
+    try:
+        os.makedirs("data", exist_ok=True)
+        with open(CACHE_INDEX_PATH, "w") as f:
+            json.dump(entries, f)
+    except Exception:
+        pass
+
+
+def _read_index():
+    """Read the cache index written by the proxy process."""
+    try:
+        with open(CACHE_INDEX_PATH, "r") as f:
+            entries = json.load(f)
+        now = time.time()
+        return [
+            {
+                "key":        e["key"],
+                "expires_in": max(0, int(e["expiry"] - now)),
+                "ttl":        e.get("ttl", DEFAULT_TTL),
+                "stored_at":  e.get("stored_at", now),
+                "size":       e.get("size", 0),
+            }
+            for e in entries
+            if now < e["expiry"]
+        ]
+    except Exception:
+        return []
 
 
 # ── Cache Key Generation ──────────────────────────────────────────────────────
@@ -94,6 +143,7 @@ def set_cache(key, response, headers):
             "ttl": ttl,
             "size": len(response) if response else 0,
         }
+        _save_index()
 
 
 # ── Delete a Single Cache Entry ───────────────────────────────────────────────
@@ -103,6 +153,7 @@ def delete_cache_entry(key):
     with lock:
         if key in cache:
             del cache[key]
+            _save_index()
             return True
     return False
 
@@ -110,19 +161,9 @@ def delete_cache_entry(key):
 # ── List Cache (dashboard) ────────────────────────────────────────────────────
 
 def list_cache():
-    with lock:
-        now = time.time()
-        result = []
-        for key, entry in cache.items():
-            expires_in = int(entry["expiry"] - now)
-            result.append({
-                "key": key,
-                "expires_in": expires_in,
-                "ttl": entry.get("ttl", DEFAULT_TTL),
-                "stored_at": entry.get("stored_at", 0),
-                "size": entry.get("size", 0),
-            })
-        return result
+    """Return cache entries. Reads from disk index so this works
+    even when called from the dashboard (a separate process)."""
+    return _read_index()
 
 
 # ── Clear All Cache ───────────────────────────────────────────────────────────
@@ -130,6 +171,7 @@ def list_cache():
 def clear_cache():
     with lock:
         cache.clear()
+        _save_index()
 
 
 # ── Cache Size ────────────────────────────────────────────────────────────────

@@ -47,3 +47,22 @@
 2026-04-25 14:48:59.594730 | 127.0.0.1:53204 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-25 14:48:59.594735 | ERROR: 
 2026-04-25 14:49:09.476991 | 127.0.0.1:53206 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-25 14:49:09.476995 | ERROR: 
 2026-04-25 14:54:30.508594 | 127.0.0.1:52646 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-25 14:54:30.508599 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-25 21:55:15.857095 | 127.0.0.1:59363 | GET http://example.com/ | example.com:80 | 2026-04-25 21:55:15.857244 | ERROR: 
+2026-04-25 21:57:10.703568 | 127.0.0.1:52789 | GET http://facebook.com/ | facebook.com:80 | 2026-04-25 21:57:10.703572 | ERROR: BLOCKED
+2026-04-25 21:59:46.206002 | 127.0.0.1:59660 | GET http://example.com/ | example.com:80 | 2026-04-25 21:59:46.206007 | ERROR: 
+2026-04-25 22:02:42.365896 | 127.0.0.1:64042 | GET http://example.com/ | example.com:80 | 2026-04-25 22:02:42.365925 | ERROR: 
+2026-04-25 22:10:54.465623 | 127.0.0.1:65418 | GET http://facebook.com/ | facebook.com:80 | 2026-04-25 22:10:54.465628 | ERROR: BLOCKED
+2026-04-25 22:15:35.588891 | 127.0.0.1:62697 | GET http://thishostdoesnotexist.invalid/ | thishostdoesnotexist.invalid:80 | 2026-04-25 22:15:35.588897 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-25 22:20:46.555493 | 127.0.0.1:58699 | GET http://example.com/ | example.com:80 | 2026-04-25 22:20:46.555500 | ERROR: timed out
+2026-04-25 22:21:29.455306 | 127.0.0.1:60197 | GET http://example.com/ | example.com:80 | 2026-04-25 22:21:29.455313 | ERROR: timed out
+2026-04-25 22:35:04.245560 | 127.0.0.1:61868 | GET http://example.com/ | example.com:80 | 2026-04-25 22:35:04.245566 | ERROR: 
+2026-04-25 22:35:22.563092 | 127.0.0.1:56433 | GET http://example.com/ | example.com:80 | 2026-04-25 22:35:22.563097 | ERROR: CACHE_HIT
+2026-04-25 22:43:23.088381 | 127.0.0.1:53877 | GET http://example.com/ | example.com:80 | 2026-04-25 22:43:23.088428 | ERROR: 
+2026-04-25 22:43:32.214814 | 127.0.0.1:64936 | GET http://example.com/ | example.com:80 | 2026-04-25 22:43:32.214819 | ERROR: CACHE_HIT
+2026-04-25 22:48:16.334257 | 127.0.0.1:52949 | GET http://example.com/ | example.com:80 | 2026-04-25 22:48:16.334264 | ERROR: 
+2026-04-25 22:51:09.570194 | 127.0.0.1:56268 | GET http://facebook.com/ | facebook.com:80 | 2026-04-25 22:51:09.570199 | ERROR: BLOCKED
+2026-04-25 22:52:15.835451 | 127.0.0.1:64301 | GET http://tiktok.com/ | tiktok.com:80 | 2026-04-25 22:52:15.835455 | ERROR: BLOCKED
+2026-04-25 22:55:41.792465 | 127.0.0.1:54882 | GET http://example.com/ | example.com:80 | 2026-04-25 22:55:41.792469 | ERROR: BLOCKED
+2026-04-25 23:10:26.251342 | 127.0.0.1:56678 | GET http://example.com/ | example.com:80 | 2026-04-25 23:10:26.251390 | ERROR: 
+2026-04-25 23:10:53.071007 | 127.0.0.1:65118 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-25 23:10:53.071012 | ERROR: BLOCKED
+2026-04-25 23:11:08.749124 | 127.0.0.1:57533 | GET http://facebook.com/ | facebook.com:80 | 2026-04-25 23:11:08.749128 | ERROR: BLOCKED

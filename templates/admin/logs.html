@@ -19,8 +19,10 @@
   </select>
   <select name="error" onchange="this.form.submit()">
     <option value="">All Events</option>
-    <option value="blocked_only" {{ 'selected' if error_filter == 'blocked_only' }}>Blocked Only</option>
-    <option value="errors_only"  {{ 'selected' if error_filter == 'errors_only' }}>Errors Only</option>
+    <option value="accepted_only"   {{ 'selected' if error_filter == 'accepted_only' }}>Accepted Only</option>
+    <option value="cache_hits_only" {{ 'selected' if error_filter == 'cache_hits_only' }}>Cache Hits Only</option>
+    <option value="blocked_only"    {{ 'selected' if error_filter == 'blocked_only' }}>Blocked Only</option>
+    <option value="errors_only"     {{ 'selected' if error_filter == 'errors_only' }}>Errors Only</option>
   </select>
   <a href="{{ url_for('logs') }}" class="btn btn-ghost">Reset</a>
   <span style="color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:auto">
@@ -64,6 +66,8 @@
           <td>
             {% if entry.error == 'BLOCKED' %}
               <span class="badge badge-blocked">BLOCKED</span>
+            {% elif entry.error == 'CACHE_HIT' %}
+              <span class="badge badge-ok" style="color:#00d4ff">CACHE HIT</span>
             {% elif entry.error %}
               <span class="badge badge-error" title="{{ entry.error }}">ERROR</span>
             {% else %}

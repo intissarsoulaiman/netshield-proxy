@@ -213,6 +213,10 @@ def handle_client(client_socket, client_address):
 
 
 def start_proxy_server():
+    import os, time, json
+    os.makedirs("data", exist_ok=True)
+    with open("data/proxy_start.json", "w") as f:
+        json.dump({"start_time": time.time()}, f)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((HOST, PORT))
