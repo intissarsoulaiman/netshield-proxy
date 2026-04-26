@@ -213,6 +213,7 @@ def handle_client(client_socket, client_address):
 
 
 def start_proxy_server():
+    # Creates proxy_start.json so the admin dashboard can read the proxy start time.
     import os, time, json
     os.makedirs("data", exist_ok=True)
     with open("data/proxy_start.json", "w") as f:
