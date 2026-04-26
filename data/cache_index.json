@@ -1,1 +1,1 @@
-[{"key": "GET:http://example.com/", "expiry": 1777147886.248608, "ttl": 60, "stored_at": 1777147826.2486112, "size": 815}]
+[{"key": "GET:http://example.com/", "expiry": 1777197626.305406, "ttl": 60, "stored_at": 1777197566.3054085, "size": 837}, {"key": "GET:http://httpbin.org/get", "expiry": 1777197632.121083, "ttl": 60, "stored_at": 1777197572.1210842, "size": 479}]

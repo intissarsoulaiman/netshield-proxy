@@ -66,3 +66,17 @@
 2026-04-25 23:10:26.251342 | 127.0.0.1:56678 | GET http://example.com/ | example.com:80 | 2026-04-25 23:10:26.251390 | ERROR: 
 2026-04-25 23:10:53.071007 | 127.0.0.1:65118 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-25 23:10:53.071012 | ERROR: BLOCKED
 2026-04-25 23:11:08.749124 | 127.0.0.1:57533 | GET http://facebook.com/ | facebook.com:80 | 2026-04-25 23:11:08.749128 | ERROR: BLOCKED
+2026-04-26 12:40:28.121721 | 127.0.0.1:49989 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-26 12:40:28.121737 | ERROR: BLOCKED
+2026-04-26 12:42:59.874083 | 127.0.0.1:49995 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-26 12:42:59.874088 | ERROR: 
+2026-04-26 12:50:34.927609 | 127.0.0.1:55808 | GET http://example.com/ | example.com:80 | 2026-04-26 12:50:34.927614 | ERROR: 
+2026-04-26 12:50:50.746599 | 127.0.0.1:55811 | GET http://example.com/ | example.com:80 | 2026-04-26 12:50:50.746603 | ERROR: CACHE_HIT
+2026-04-26 12:53:24.806693 | 127.0.0.1:55815 | GET http://example.com/ | example.com:80 | 2026-04-26 12:53:24.806698 | ERROR: 
+2026-04-26 12:53:42.632987 | 127.0.0.1:61243 | GET http://example.com/ | example.com:80 | 2026-04-26 12:53:42.632990 | ERROR: BLOCKED
+2026-04-26 12:55:58.126670 | 127.0.0.1:53897 | GET http://doesnotexist.invalid/ | doesnotexist.invalid:80 | 2026-04-26 12:55:58.126678 | ERROR: [Errno 11001] getaddrinfo failed
+2026-04-26 12:59:26.308178 | 127.0.0.1:53328 | GET http://example.com/ | example.com:80 | 2026-04-26 12:59:26.308186 | ERROR: 
+2026-04-26 12:59:32.142830 | 127.0.0.1:53333 | GET http://httpbin.org/get | httpbin.org:80 | 2026-04-26 12:59:32.142836 | ERROR: 
+2026-04-26 12:59:38.463049 | 127.0.0.1:53337 | POST http://httpbin.org/post | httpbin.org:80 | 2026-04-26 12:59:38.463052 | ERROR: 
+2026-04-26 13:01:54.620276 | 127.0.0.1:60940 | CONNECT example.com:443 | example.com:443 | 2026-04-26 13:01:54.620283 | ERROR: 
+2026-04-26 13:14:53.218704 | 127.0.0.1:53996 | CONNECT example.com:443 | example.com:443 | 2026-04-26 13:14:53.218712 | ERROR: 
+2026-04-26 13:15:14.042820 | 127.0.0.1:54000 | CONNECT example.com:443 | example.com:443 | 2026-04-26 13:15:14.042822 | ERROR: BLOCKED
+2026-04-26 13:15:58.881319 | 127.0.0.1:54003 | CONNECT example.com:443 | example.com:443 | 2026-04-26 13:15:58.881321 | ERROR: BLOCKED
